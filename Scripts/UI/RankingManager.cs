@@ -34,6 +34,7 @@ public class RankingManager : MonoBehaviour, IObserver<Dictionary<Type, Resource
 
     public void UpdateLocalScores(Dictionary<Type, Resource> resources)
     {
+        Debug.Log("Updating local player scores");
         if(culturePointsText != null)
         {
             culturePointsText.text = GameManager.Instance.Player.CulturePoints.ToString();
@@ -45,9 +46,13 @@ public class RankingManager : MonoBehaviour, IObserver<Dictionary<Type, Resource
             {
                 var barEntry = bars[entry.Key];
                 if(barEntry.Item1.type.Equals(Image.Type.Filled))
-                    GameManager.Instance.ExecuteOnMain(() => barEntry.Item1.fillAmount = barEntry.Item2 > 0 ? entry.Value.Value / barEntry.Item2 : 0f);
+                    GameManager.Instance.ExecuteOnMain(() => barEntry.Item1.fillAmount = barEntry.Item2 > 0 ? (float)entry.Value.Value / barEntry.Item2 : 0f);
 
                 string resName = entry.Key.Name.Substring(0, entry.Key.Name.IndexOf('R'));
+
+                if (resName == "Money") 
+                    resName = "Geld";
+
                 string value = (entry.Value.Value > 0 ? entry.Value.Value : 0).ToString();
                 string unit = entry.Value.GetUnitString();
                 // "Time: 12 Stunden"

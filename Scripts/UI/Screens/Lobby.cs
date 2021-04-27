@@ -135,7 +135,6 @@ public class Lobby : Screen, IObserver<int>
     public void AvatarChoice(string type)
     {
         avatarType = (AvatarType)Enum.Parse(typeof(AvatarType),type);
-        screenHistory.Add(chooseAvatarScreen);
         DisplayPlayerSettings();
     }
 
@@ -148,7 +147,9 @@ public class Lobby : Screen, IObserver<int>
     public void DisplayPlayerSettings()
     {
         ChangeScreen(joinGameScreen);
-        screenHistory.Add(startScreen);
+        screenHistory.Add(chooseAvatarScreen);
+        playerName.text = "";
+        gameIdJoin.text = "";
     }
 
     public void DisplayInLobbyScreen()
@@ -208,7 +209,6 @@ public class Lobby : Screen, IObserver<int>
     private void DisplayStart()
     {
         ChangeScreen(startScreen);
-        backButton.SetActive(false);
     }
 
     public void BackToPreviousScreen()
@@ -221,6 +221,7 @@ public class Lobby : Screen, IObserver<int>
     {
         base.Show();
         DisplayStart();
+        screenHistory.Clear();
         inLobby = false;
     }
 

@@ -39,9 +39,9 @@ public class GyroManager : Minigame
 
             if (rigid.position.y < ballStartPosition.y - 40)
             {
-               message.text = "Leider verloren, zurück nach " + GameManager.Instance.Player.Trip.CurrentTransport.From.City.Name;
                rigid.isKinematic = true;
-                gameOver = true;
+               gameOver = true;
+               StartCoroutine(WaitForNextStart());
             }
         }
     }
@@ -65,19 +65,26 @@ public class GyroManager : Minigame
         return rotation;
     }
 
+    IEnumerator WaitForNextStart()
+    {
+        message.text = "Neuer Versuch wird vorbereitet...";
+        yield return new WaitForSeconds(3);
+        Reset();
+    }
+
     private void Reset()
     {
         rigid.isKinematic = false;
         rigid.position = ballStartPosition;
-        message.text = "Balanciere den Ball ";
-        gameOver = false;
+        message.text = "Balanciere den Ball";
     }
 
     public override void StartGame()
     {
         base.StartGame();
         rigid = GetComponent<Rigidbody>();
-        Reset();       
+        Reset();
+        gameOver = false;
     }
 
     public override void StopGame()

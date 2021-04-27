@@ -27,7 +27,10 @@ public class Player : EnemyPlayer, IObservable<Dictionary<Type, Resource>>
     {
         CityStay newStay = new CityStay(city, package.days);
         Trip.AddStay(newStay);
-        CulturePoints += package.culturePoints;
+
+        if (Trip.arrivedInTime)
+            CulturePoints += package.culturePoints;
+
         UsePackageResources(package);
     }
 
@@ -63,6 +66,11 @@ public class Player : EnemyPlayer, IObservable<Dictionary<Type, Resource>>
     public void ValidTripFinish(float points)
     {
         CulturePoints += points;
+    }
+
+    public void AnsweredQuestionCorrect()
+    {
+        CulturePoints += 1;
     }
 
     public void AddObserver(IObserver<Dictionary<Type, Resource>> observer)

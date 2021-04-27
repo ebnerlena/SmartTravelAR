@@ -24,7 +24,7 @@ public static class AvatarFactory
         {
             name = "Student";
             minsToPlay = 15;
-            startValues.Add(typeof(MoneyResource), 1700);
+            startValues.Add(typeof(MoneyResource), 2000);
             startValues.Add(typeof(CO2Resource), 0);
         }
 
@@ -32,7 +32,7 @@ public static class AvatarFactory
         {
             name = "Businessman";
             minsToPlay = 12; // 12min to play
-            startValues.Add(typeof(MoneyResource), 2800);
+            startValues.Add(typeof(MoneyResource), 3000);
             startValues.Add(typeof(CO2Resource), 0);
         }
 

@@ -37,6 +37,9 @@ public class TimeManager : MonoBehaviour, IResetable, IObserver<bool>
             t = 0;
             CheckEvents();
         }
+
+        if (GameEnd.Equals(DateTime.UtcNow))
+            GameManager.Instance.GameOver();
     }
 
     public void StartGameNow()

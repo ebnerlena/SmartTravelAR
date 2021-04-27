@@ -35,8 +35,7 @@ public class Shaker : Minigame
 
     public override void StartGame()
     {
-        //todo: setting counter according to travelling time
-        counter = 20;
+        counter = (int)GameManager.Instance.Player.Trip.CurrentTransport.MaxTimeInSeconds;
 
         message.text = "Schüttle dein Handy: " + counter;
         base.StartGame();  

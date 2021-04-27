@@ -5,7 +5,7 @@
     public override void Execute()
     {
         UnityEngine.Debug.Log("Lobby \"" + messageable.lobbyId + "\" does not exist.");
-        GameManager.Instance.SetErrorMessage(ErrorMessageType.JoinLobbyIDError, "Lobby \"" + messageable.lobbyId + "\" does not exist.");
+        GameManager.Instance.SetErrorMessage(ErrorMessageType.JoinLobbyIDError, "Lobby \"" + messageable.lobbyId + "\" nicht verfügbar");
     }
 
     public static JoinedLobbyFailCommand FromNetworkMessage(NetworkMessage message)

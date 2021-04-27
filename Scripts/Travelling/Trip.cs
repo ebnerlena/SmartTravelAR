@@ -6,6 +6,7 @@ public class Trip : IResetable, IObserver<bool>
     public List<Transport> transportHistory { get; private set; }
     public Transport CurrentTransport { get; set; }
     public City CurrentCity { get; set; }
+    public bool arrivedInTime;
 
     private List<CityStay> route;
 
@@ -26,14 +27,16 @@ public class Trip : IResetable, IObserver<bool>
         route.Add(stay);
     }
 
-    public void Cancel()
+    public void ArrivedNotInTime()
     {
-        CurrentCity = CurrentTransport.From.City;
+        CurrentCity = CurrentTransport.To.City;
+        arrivedInTime = false;
     }
 
     public void ArrivedInTime()
     {
         CurrentCity = CurrentTransport.To.City;
+        arrivedInTime = true;
     }
 
     public bool IsCompleted()

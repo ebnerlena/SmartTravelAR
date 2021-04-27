@@ -5,10 +5,11 @@ public static class ResourceLoader
 {
     private static readonly string avatarPath = "Images/Icons/Avatars/";
     private static readonly string transportTypePath = "Images/Icons/Transports/";
-    private static readonly string citiesPath = "CityCSV/cities";
-    private static readonly string cityConnectionsPath = "CityCSV/cityconnections";
+    private static readonly string citiesPath = "CSV/cities";
+    private static readonly string cityConnectionsPath = "CSV/cityconnections";
     private static readonly string sightseeingPackagesPath = "SightseeingPackages/";
     private static readonly string routesPath = "Images/Routen/";
+    private static readonly string quizPath = "CSV/quizquestions";
 
     public static Sprite Avatar(string name)
     {
@@ -57,6 +58,11 @@ public static class ResourceLoader
     public static TextAsset CityConnectionsText()
     {
         return Resources.Load<TextAsset>(cityConnectionsPath);
+    }
+
+    public static TextAsset QuizQuestionsText()
+    {
+        return Resources.Load<TextAsset>(quizPath);
     }
 
     public static TextAsset SightSeeingPackages()

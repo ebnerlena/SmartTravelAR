@@ -51,10 +51,9 @@ public class GameManager : MonoBehaviour, IObservable<GameStatus>
         mainThreadActions = new Queue<Action>();
         PlayerListManager = new PlayerListManager();
 
-        
+        QuizManager.CreateQuestionList();
         SetupUI();
         SetupPlayer();
-
     }
 
     void Start()
@@ -145,6 +144,8 @@ public class GameManager : MonoBehaviour, IObservable<GameStatus>
     {
         if (Player.Trip.IsCompleted())
             Player.ValidTripFinish(validTripFinishPoints);
+        else
+            SetErrorMessage(ErrorMessageType.ResourcesError, "deine Resourcen sind verbraucht");
 
         this.Status = GameStatus.Ranking;            
     }

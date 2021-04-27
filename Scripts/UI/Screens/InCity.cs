@@ -40,6 +40,7 @@ public class InCity : Screen
     private readonly string eventGroupName = "incity";
     private float t;
     private float timerUpdate = 0.5f;
+    private System.Random rnd = new System.Random();
 
     void Awake()
     {
@@ -104,6 +105,7 @@ public class InCity : Screen
     //Continue trip
     public void ChooseTransport(string type)
     {
+        TimeManager.Instance.CancelEventGroup(eventGroupName);
         selectedTransport = type;
         GameManager.Instance.StartTrip(selectedCity, selectedTransport);
     }
@@ -269,12 +271,20 @@ public class InCity : Screen
 
     public void DisplayCityChoiceScreen()
     {
-        // null reference probably bc of this
-        if (MobileOnlyActivator.IsMobile)
-            arObjectsManager.Deactivate();
+        try {
+            // null reference probably bc of this
+            if (MobileOnlyActivator.IsMobile)
+                arObjectsManager.Deactivate();
 
-        SetupCityButtons();
-        ChangeScreen(cityChoiceScreen);
+            eventGroup.CancelEvent("chooseNextTravel");
+            SetupCityButtons();
+            ChangeScreen(cityChoiceScreen);
+        }
+        catch (Exception e)
+        {
+             DebugText.SetText(1, "11 " + e.Message);
+        }
+        
     }
 
     private void DisplayTransportChoiceScreen()
@@ -319,7 +329,6 @@ public class InCity : Screen
             StartTimeEvents(false);
             try
             {
-                // throws NullReference exception
                 DisplayCityChoiceScreen();
             }
             catch (Exception e)
@@ -337,7 +346,6 @@ public class InCity : Screen
 
         if (MobileOnlyActivator.IsMobile)
             arObjectsManager.Deactivate();
-
     }
 
     #region Time Events
@@ -349,7 +357,11 @@ public class InCity : Screen
 
     private void ForceTravel()
     {
-        //todo: implement
+        string[] transports = new string[]{"Car", "Plane", "Train"};
+        string[] cities = GraphGenerator.GetCities();
+        string randomCity = cities[rnd.Next(0,cities.Length)];
+        string randomTansport = transports[rnd.Next(0,transports.Length)];
+        GameManager.Instance.StartTrip(randomCity, randomTansport);
     }
 
     private void StartTimeEvents(bool withPackages)
@@ -364,7 +376,7 @@ public class InCity : Screen
         }
 
         eventGroup = new TimeEventGroup(eventGroupName, maxStaySeconds);
-        eventGroup.RegisterEvent(new TimeEvent("forceTravel", ForceTravel, 0f, true));
+        eventGroup.RegisterEvent(new TimeEvent("forceTravel", ForceTravel, 0, true));
 
         if (withPackages)
         {
@@ -373,7 +385,6 @@ public class InCity : Screen
         }
 
         TimeManager.Instance.RegisterEventGroup(eventGroup);
-
         eventGroup.Start();
     }
     #endregion

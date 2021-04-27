@@ -25,6 +25,9 @@ public class ImageRecognizer : MonoBehaviour
     private GameObject currentPrefab;
     private Dictionary<string, GameObject> spawnedPrefabs = new Dictionary<string, GameObject>();
 
+    [SerializeField]
+    private UIManager uiManager;
+
 
 #pragma warning disable 0649
     [SerializeField]
@@ -34,7 +37,7 @@ public class ImageRecognizer : MonoBehaviour
     [SerializeField]
     private Travelling travelling;
 
-
+ 
     private void Awake()
     {
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
@@ -86,12 +89,19 @@ public class ImageRecognizer : MonoBehaviour
 
     public void SearchForImage(string imageName, OnImageFound onImageFound)
     {
-        HideAllObjects();
-        uiText.text = "";
-        searchForImage = true;
-        this.searchImageName = imageName;
-        this.onImageFound = onImageFound;
-        ScanCue.SetActive(true);
+        try {
+            HideAllObjects();
+            uiText.text = "";
+            searchForImage = true;
+            this.searchImageName = imageName;
+            this.onImageFound = onImageFound;
+            ScanCue.SetActive(true);
+        } 
+        catch(Exception e) 
+        {
+            uiManager.debugText.text = e.Message;
+        }
+        
     }
 
 
@@ -143,6 +153,7 @@ public class ImageRecognizer : MonoBehaviour
             currentPrefab.transform.position = pos;
             currentPrefab.SetActive(true);
             ScanCue.SetActive(false);
+            searchForImage = false;
             onImageFound?.Invoke();
 
             HideAllObjectsExcept(transportType);

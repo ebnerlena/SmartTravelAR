@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public class MinigameController : MonoBehaviour
 {
@@ -66,5 +67,4 @@ public class MinigameController : MonoBehaviour
     {
         return currentMinigame.GetSuccess();
     }
-
 }

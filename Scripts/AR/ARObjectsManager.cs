@@ -8,7 +8,7 @@ using UnityEngine.XR;
 using System;
 
 [RequireComponent(typeof(ARPlaneManager))]
-public class ARObjectsManager : MonoBehaviour
+public class ARObjectsManager : MonoBehaviour, IResetable, IObserver<bool>
 {
     public GameObject placementIndicator;
     private GameObject objectToSpawn;
@@ -33,9 +33,11 @@ public class ARObjectsManager : MonoBehaviour
     private ARReferencePointManager referencePointManager;
     private Pose placementPose;
     private bool placementPoseIsValid = false;
+    private bool allowedToContinue = false;
 
     private Dictionary<int, ARReferencePoint> referencePoints;
     private Dictionary<int, GameObject> packagePrefabs;
+    private Dictionary<int, GameObject> packageHistory;
     private List<SightseeingPackage> packages;
 
     void Start()
@@ -47,6 +49,7 @@ public class ARObjectsManager : MonoBehaviour
         planeManager = GetComponent<ARPlaneManager>();
         referencePointManager = GetComponent<ARReferencePointManager>();
         packagePrefabs = new Dictionary<int, GameObject>();
+        packageHistory = new Dictionary<int, GameObject>();
         referencePoints = new Dictionary<int, ARReferencePoint>();
         placementIndicator.SetActive(false);
         HidePlaneDetection();
@@ -61,6 +64,7 @@ public class ARObjectsManager : MonoBehaviour
         uiText.text = "Schau dich um...";
         isActive = true;
         ActivatePlacement();  
+        allowedToContinue = false;
     }
 
     public void Deactivate()
@@ -69,6 +73,7 @@ public class ARObjectsManager : MonoBehaviour
         uiText.text = "";
         HideAllObjects();
         isActive = false;
+        placementIndicator.SetActive(false);
         HidePlaneDetection();
     }
 
@@ -93,41 +98,47 @@ public class ARObjectsManager : MonoBehaviour
 
     void Update()
     {
-        if (isActive && placementIsActive)
-        {
-            UpdatePlacementPose();
-            UpdatePlacementIndicator();
-
-            if (placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        try {
+            if (isActive && placementIsActive)
             {
-                PlaceObject();
-            }
-        }  
-        if (isActive && selectionIsActive)
-        {
-            CheckForSelection();
-        }
+                UpdatePlacementPose();
+                UpdatePlacementIndicator();
 
-        //todo: 
-        //remove - is here only for interaction chance when in citystay
-        if (isActive && !placementIsActive && !selectionIsActive)
-        {
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
-
-                if (touch.phase == TouchPhase.Began)
+                if (placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
                 {
-                    Ray ray = Camera.current.ScreenPointToRay(touch.position);
+                    PlaceObject();
+                }
+            }  
+            if (isActive && selectionIsActive)
+            {
+                CheckForSelection();
+            }
 
-                    if (Physics.Raycast(ray, out _))
+            //todo: 
+            //remove - is here only for interaction chance when in citystay
+            if (isActive && !placementIsActive && !selectionIsActive && allowedToContinue)
+            {
+                if (Input.touchCount > 0)
+                {
+                    Touch touch = Input.GetTouch(0);
+
+                    if (touch.phase == TouchPhase.Began)
                     {
-                        ClearRestObject();
-                        inCity.DisplayCityChoiceScreen();                      
+                        Ray ray = Camera.current.ScreenPointToRay(touch.position);
+
+                        if (Physics.Raycast(ray, out _))
+                        {
+                            ClearRestObject();
+                            inCity.DisplayCityChoiceScreen();                      
+                        }
                     }
                 }
             }
         }
+        catch(Exception e) {
+             DebugText.SetText(1, "7 " + e.Message);
+        }
+        
     }
 
     public void ChooseObject(int nr)
@@ -159,31 +170,38 @@ public class ARObjectsManager : MonoBehaviour
 
     private void PlaceObject()
     {
-        ARReferencePoint referencePoint = referencePointManager.AddReferencePoint(placementPose);
-        //referencePointManager.referencePointPrefab = objectToSpawn;
+        try {
+            ARReferencePoint referencePoint = referencePointManager.AddReferencePoint(placementPose);
+            //referencePointManager.referencePointPrefab = objectToSpawn;
 
-        if (referencePoint != null)
-        {
-            referencePoints.Add(packageCounter, referencePoint);
-            GameObject packageObject = Instantiate(objectToSpawn, placementPose.position, Quaternion.Euler(0, 180, 0));
-            packageObject.transform.SetParent(referencePoint.transform, true);
-        }
+            if (referencePoint != null)
+            {
+                referencePoints.Add(packageCounter, referencePoint);
+                GameObject packageObject = Instantiate(objectToSpawn, placementPose.position, Quaternion.Euler(0, 180, 0));
+                packageObject.transform.SetParent(referencePoint.transform, true);
+                packageHistory.Add(packageCounter, packageObject);
 
-
-        if (packageCounter < 3)
-        {
-            packageCounter++;
-            objectToSpawn = packagePrefabs[packageCounter];
+                if (packageCounter < 3)
+                {
+                    packageCounter++;
+                    objectToSpawn = packagePrefabs[packageCounter];
+                }
+                else
+                {
+                    uiText.text = "";
+                    objectToSpawn = null;
+                    placementIsActive = false;
+                    placementIndicator.SetActive(false);
+                    HidePlaneDetection();
+                    StartCoroutine(WaitAfterPlacementFinished());
+                }
+            }
         }
-        else
+        catch(Exception e)
         {
-            uiText.text = "";
-            objectToSpawn = null;
-            placementIsActive = false;
-            placementIndicator.SetActive(false);
-            HidePlaneDetection();
-            StartCoroutine(WaitAfterPlacementFinished());
+            DebugText.SetText(1, "9 " + e.Message);
         }
+        
     }
 
     private void CheckForSelection()
@@ -244,6 +262,8 @@ public class ARObjectsManager : MonoBehaviour
     {   
         referencePointManager.RemoveReferencePoint(referencePoints[selected]);
         referencePoints.Clear();
+
+        ClearPackageHistory();
     }
 
     private void ClearObjectsWithout(int nr)
@@ -268,7 +288,22 @@ public class ARObjectsManager : MonoBehaviour
             if (referencePoint.Value != null)
                  referencePointManager.RemoveReferencePoint(referencePoint.Value); 
         }
-        referencePoints.Clear();
+
+        if (referencePoints == null)
+            referencePoints.Clear();
+
+       ClearPackageHistory();
+        
+    }
+
+    private void ClearPackageHistory()
+    {
+        foreach (KeyValuePair<int, GameObject> package in packageHistory)
+        {
+            if (package.Value != null)
+                Destroy(package.Value);
+        }
+        packageHistory.Clear();
     }
 
     IEnumerator WaitAfterPlacementFinished()
@@ -283,6 +318,20 @@ public class ARObjectsManager : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
         selectionIsActive = false;
+        allowedToContinue = true;
         uiText.text = "Antippen um fortzufahren";
+    }
+
+    public void Reset()
+    {   
+        HideAllObjects();
+        HidePlaneDetection();
+        //dont think that that one is working - should reset detectedplanes
+        //arSession.Reset();
+    }
+
+    public void ObserverUpdate(bool shouldReset)
+    {
+        Reset();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class MapPlayerMarker : MonoBehaviour
 {
@@ -21,9 +22,16 @@ public class MapPlayerMarker : MonoBehaviour
     {
         this.start = start;
         this.target = target;
-        if(!isMoving)
+
+        try 
         {
-            StartCoroutine(MoveToTarget(inSeconds, travelSprite));
+            if(!isMoving)
+            {
+                StartCoroutine(MoveToTarget(inSeconds, travelSprite));
+            }
+        }
+        catch(Exception e)
+        {
         }
     }
 

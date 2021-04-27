@@ -8,6 +8,6 @@
 
     public override string GetUnitString()
     {
-        return "kg/?";
+        return "kg";
     }
 }

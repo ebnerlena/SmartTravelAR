@@ -114,6 +114,19 @@ public static class GraphGenerator
             return null;
     }
 
+    public static string[] GetCities()
+    {
+        string[] citiesAvailable = new string[cities.Count];
+        int cnt = 0;
+        foreach (var item in cities)
+        {
+            citiesAvailable[cnt] = item.Key;
+            cnt++;
+        }
+
+        return citiesAvailable;
+    }
+
     public static List<string> GetCityOptions(City currentCity)
     {
         List<string> cities = new List<string>();

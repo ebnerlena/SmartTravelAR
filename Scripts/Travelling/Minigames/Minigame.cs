@@ -18,8 +18,6 @@ public class Minigame : MonoBehaviour
         this.gameObject.SetActive(true);
         UnityEngine.Screen.sleepTimeout = SleepTimeout.NeverSleep;
         success = true;
-
-
     }
 
     public virtual void StopGame()

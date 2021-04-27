@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour, IObserver<GameStatus>
 
     private List<Screen> uiStates = new List<Screen>();
     public Text errorMsg;
+    public Text debugText;
 
     [SerializeField]
     private Lobby lobby;
